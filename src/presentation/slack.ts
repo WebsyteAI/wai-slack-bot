@@ -1,6 +1,5 @@
 import { SlackEvent } from "../domain/SlackEventModel";
 import { SlackService } from "../application/SlackService";
-import { generateText } from "ai";
 
 // Helper to verify Slack signature (optional, for production)
 // For now, we skip signature verification for simplicity
@@ -22,14 +21,9 @@ export async function handleSlackEvent(req: Request, env: any): Promise<Response
   // Only handle message events (ignore bot messages)
   if (event.event && event.event.type === "message" && !event.event.bot_id) {
     const slack = new SlackService(env.SLACK_BOT_TOKEN);
-    const userText = event.event.text || "";
-    // Generate AI response
-    const { text: aiReply } = await generateText({
-      model: env.AI_MODEL,
-      prompt: userText,
-    });
-    // Reply in channel
-    await slack.postMessage(event.event.channel!, aiReply);
+    // For testing, just reply with a static message
+    const testReply = "Hello from your Cloudflare Worker Slack bot!";
+    await slack.postMessage(event.event.channel!, testReply);
   }
 
   return new Response("ok", { status: 200 });
